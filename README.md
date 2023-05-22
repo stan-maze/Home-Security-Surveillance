@@ -4,7 +4,7 @@
 facerec\api\face_recognizer
 firedet\api\fire_detector
 ```
-安装要求包, 主要是dlib, opencv和pytorch
+安装相关的库, 主要是torch, scipy, dlib和opencv
 ```
 pip install -r requirements.txt
 ```
@@ -12,12 +12,14 @@ pip install -r requirements.txt
 ```
 pip install cmake, boost
 ```
-## 运行demo, 
+## 运行demo
 ```
 python3 demo.py
 ```
-## 运行网页app, 需要安装flask
+## 运行网页app, 需要安装flask, 然后去提示网址
+```
+pip install flask
+```
 ```
 python3 app.py
-然后去提示网址
 ```
