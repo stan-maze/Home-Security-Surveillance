@@ -18,9 +18,9 @@ import platform
 app = Flask(__name__)
 
 # initialize the video stream and allow the camera sensor to warmup
-with open('yolov5_config.json', 'r', encoding='utf8') as fp:
+with open('config.json', 'r', encoding='utf8') as fp:
     opt = json.load(fp)
-    print('[INFO] YOLOv5 Config:', opt)
+    print('[INFO] Config:', opt)
 
 detector = mix_Detector()
 source = opt['source']
