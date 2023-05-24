@@ -1,4 +1,14 @@
 # Home-Security-Surveillance
+通过(摄像头)视频流检测火情和非法闯入, 火情识别基于yolov5模型, 非法闯入基于人脸识别, 目前是基于dlib(opencv), 并支持部署应用到服务器支持远程查看和修改参数
+
+## 主要模块
+
+- facerec模块, 支持人脸识别和录入, 基于dlib库
+- firedet模块, 支持火焰识别, 模型训练, 基于yolov5的backbone
+- 数据流处理模块, 尚未单独分离, 原型在demo中对视频流做前后处理, 基于迭代器和opencv管理视频流
+- app模块, 服务器应用, 基于flask框架
+
+
 ## 文件还比较乱, 具体的两个检测器在
 ```
 facerec\api\face_recognizer
@@ -19,7 +29,16 @@ python3 demo.py
 ## 运行网页app, 需要安装flask, 然后去提示网址
 ```
 pip install flask
-```
-```
 python3 app.py
 ```
+## TODO
+
+- face_recognizer:
+    - 调用的api很简单, 可以自己复写
+    - 选择的dlib模型选择可以进一步考察
+- fire_detector由yolov5项目改造而来, 清理非必要的文件
+- 配置文件的管理:
+    - 是否分离face_recognizer和fire_detector
+    - 网页配置页以及服务的重启
+- 告警服务的形式
+- logging, 包括日志文件以及图像保存

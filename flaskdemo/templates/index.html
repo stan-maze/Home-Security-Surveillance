@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>配置文件</title>
+    <!-- 添加 Bootstrap 的 CSS 链接 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <h1>配置文件</h1>
+
+    <!-- 添加选项卡组件 -->
+    <ul class="nav nav-tabs">
+        {% for config_name, config in configs.items() %}
+            <li class="nav-item">
+                <a class="nav-link {% if loop.index == 1 %}active{% endif %}" id="{{ config_name }}-tab" data-toggle="tab" href="#{{ config_name }}" role="tab" aria-controls="{{ config_name }}" aria-selected="true">{{ config_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+        <form method="POST" action="/">
+            {% for config_name, config in configs.items() %}
+                <div class="tab-pane fade {% if loop.index == 1 %}show active{% endif %}" id="{{ config_name }}" role="tabpanel" aria-labelledby="{{ config_name }}-tab">
+                    <h2>{{ config_name }}</h2>
+                    {% for key, value in config.__dict__.items() %}
+                        {% if not key.startswith('_') %}
+                            <div class="form-group">
+                                <label for="{{ config_name }}-{{ key }}">{{ key }}</label>
+                                <input type="text" class="form-control" id="{{ config_name }}-{{ key }}" name="{{ key }}" value="{{ value }}">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            {% endfor %}
+            <input type="hidden" name="config_name" value="{{ config_name }}">
+        </form>
+    </div>
+
+    <!-- 添加 Bootstrap 的 JavaScript 链接 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
