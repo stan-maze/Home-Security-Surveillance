@@ -120,7 +120,7 @@ def logging():
             if alerts:
                 print(em_sent, patience)
                 if not em_sent or patience == 0:
-                    em_sent = send_email(recemail, '火, 火!', '你嫲喊你回家灭火')
+                    em_sent = send_email(recemail, '火, 火!', '你嫲喊你回家灭火', 'obama1.jpg')
                     patience = 1000
                 else:
                     patience -= 1
