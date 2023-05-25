@@ -48,13 +48,12 @@ python3 app.py
 
 
 ## TODO
-
-- face_recognizer:
-    - 调用的api很简单, 可以自己复写
-    - 选择的dlib模型选择可以进一步考察
-- fire_detector由yolov5项目改造而来, 清理非必要的文件
-- 配置文件的管理:
-    - 是否分离face_recognizer和fire_detector
-    - 网页配置页以及服务的重启
-- 告警服务的形式
-- logging, 包括日志文件以及图像保存
+- [ ] face_recognizer:
+    - [ ] 调用的api很简单, 可以自己复写
+    - [ ] 选择的dlib模型选择可以进一步考察
+- [ ] fire_detector由yolov5项目改造而来, 清理非必要的文件
+- [ ] 配置文件的管理:
+    - [ ] 是否分离face_recognizer和fire_detector
+    - [ ] 网页配置页以及服务的重启
+- [x] 告警服务的形式
+- [x] logging, 包括日志文件以及图像保存
