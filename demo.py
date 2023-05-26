@@ -170,6 +170,8 @@ class detect_tasks_manager():
     
     def run_detect(self):
         def anomaly_detected(queue):
+            if len(queue) < 5:
+                return False
             if sum(queue) >= len(queue)/2:
                 return True
             return False

@@ -5,20 +5,24 @@ import yaml
 from PIL import Image
 import os
 import torch
+import json
 
 CURRENT_PATH = os.path.abspath(__file__)
 DIR_PATH = os.path.dirname(os.path.dirname(CURRENT_PATH))
-yaml_PATH = os.path.join(DIR_PATH, 'data', 'faces.yaml')
+json_PATH = os.path.join(DIR_PATH, 'data', 'faces.json')
+# yaml_PATH = os.path.join(DIR_PATH, 'data', 'faces.yaml')
 img_PATH = os.path.join(DIR_PATH, 'data', 'images')
 
 class face_recognizer():
     def __init__(self) -> None:
         self.known_face_encodings = {}
-        with open(yaml_PATH, 'r') as f:
-            data = yaml.safe_load(f)
-        for face in data:
-            name = face['name']
-            image_paths = face['image_paths']
+        with open(json_PATH) as file:
+            data = json.load(file)
+        # with open(yaml_PATH, 'r') as f:
+        #     data = yaml.safe_load(f)
+        for name, image_paths in data.items():
+            # name = face['name']
+            # image_paths = face['image_paths']
             
             for image_file in image_paths:
                 img= face_recognition.load_image_file(os.path.join(img_PATH, image_file))

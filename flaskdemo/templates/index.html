@@ -1,45 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>配置文件</title>
-    <!-- 添加 Bootstrap 的 CSS 链接 -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Config Files</title>
+    <style>
+        /* CSS for the tabs */
+        .tab {
+            overflow: hidden;
+        }
+        
+        /* Style the tab links */
+        .tab button {
+            background-color: #f2f2f2;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+        
+        /* Change background color of tab links on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+        }
+        
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>配置文件</h1>
+    <img src="obama1.jpg" alt="Image">
 
-    <!-- 添加选项卡组件 -->
-    <ul class="nav nav-tabs">
-        {% for config_name, config in configs.items() %}
-            <li class="nav-item">
-                <a class="nav-link {% if loop.index == 1 %}active{% endif %}" id="{{ config_name }}-tab" data-toggle="tab" href="#{{ config_name }}" role="tab" aria-controls="{{ config_name }}" aria-selected="true">{{ config_name }}</a>
-            </li>
+    <div class="tab">
+        {% for index, config in enumerate(configs) %}
+            <button class="tablinks" onclick="openTab(event, 'Tab{{ index + 1 }}')" {% if index == 0 %}id="defaultOpen"{% endif %}>
+                Config File {{ index + 1 }}
+            </button>
         {% endfor %}
-    </ul>
-
-    <div class="tab-content">
-        <form method="POST" action="/">
-            {% for config_name, config in configs.items() %}
-                <div class="tab-pane fade {% if loop.index == 1 %}show active{% endif %}" id="{{ config_name }}" role="tabpanel" aria-labelledby="{{ config_name }}-tab">
-                    <h2>{{ config_name }}</h2>
-                    {% for key, value in config.__dict__.items() %}
-                        {% if not key.startswith('_') %}
-                            <div class="form-group">
-                                <label for="{{ config_name }}-{{ key }}">{{ key }}</label>
-                                <input type="text" class="form-control" id="{{ config_name }}-{{ key }}" name="{{ key }}" value="{{ value }}">
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">保存</button>
-                </div>
-            {% endfor %}
-            <input type="hidden" name="config_name" value="{{ config_name }}">
-        </form>
     </div>
 
-    <!-- 添加 Bootstrap 的 JavaScript 链接 -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% for index, config in enumerate(configs) %}
+    <div id="Tab{{ index + 1 }}" class="tabcontent" {% if index == 0 %}style="display: block;"{% endif %}>
+        <h2>Config File {{ index + 1 }}</h2>
+        <ul>
+            {% for key, value in config.items() %}
+                <li><strong>{{ key }}:</strong> 
+                    {% if index == 2 %}
+                        <ul>
+                            {% for item in value %}
+                                <li>
+                                    {% for item in value %}
+                                    <li>
+                                        <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image" height="120">
+                                    </li>
+                                {% endfor %}
+                                
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('edit', index=index) }}">Edit</a>
+        <hr>
+    </div>
+{% endfor %}
+
+
+    <script>
+        // JavaScript function to open the selected tab
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+        
+            // Remove active class from all tab links
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+        
+            // Show the selected tab content and set the button as active
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Set the first tab as default open
+        document.getElementById("defaultOpen").click();
+    </script>
 </body>
 </html>

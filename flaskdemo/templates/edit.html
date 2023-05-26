@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Config</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="checkbox"],
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            width: auto;
+            padding: 5px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>Edit Config File</h2>
+    <form method="POST" action="">
+        {% for key, value in config.items() %}
+            <label>{{ key }}:</label>
+            {% if value|is_bool %}
+                <input type="checkbox" name="{{ key }}" {% if value %}checked{% endif %}>
+            {% elif value|is_int %}
+                <input type="number" name="{{ key }}" value="{{ value }}">
+            {% else %}
+                <input type="text" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+            <br>
+        {% endfor %}
+        <br>
+        <input type="submit" value="Save">
+    </form>
+</body>
+</html>
