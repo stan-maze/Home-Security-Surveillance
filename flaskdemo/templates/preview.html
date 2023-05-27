@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preview</title>
+</head>
+<body>
+    {% if file_type == 'image' %}
+        <h1>Image Preview - {{ file_path }}</h1>
+        <img src="/download/{{ file_path }}" alt="Preview">
+    {% elif file_type == 'text' %}
+        <h1>Text Preview - {{ file_path }}</h1>
+        <pre>{{ content }}</pre>
+    {% endif %}
+    <br>
+    <a href="/download/{{ file_path }}">Download</a>
+</body>
+</html>

@@ -57,16 +57,11 @@
                 <li><strong>{{ key }}:</strong> 
                     {% if index == 2 %}
                         <ul>
-                            {% for item in value %}
-                                <li>
                                     {% for item in value %}
                                     <li>
                                         <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image" height="120">
                                     </li>
-                                {% endfor %}
-                                
-                                </li>
-                            {% endfor %}
+                                {% endfor %}                                
                         </ul>
                     {% else %}
                         {{ value }}

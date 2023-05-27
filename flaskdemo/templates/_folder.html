@@ -1,0 +1,18 @@
+{% for item in item.children %}
+    {% if item.type == 'folder' %}
+        <li>
+            <span class="folder">{{ item.name }}</span>
+            <ul>
+                {% include '_folder.html' %}
+            </ul>
+        </li>
+    {% else %}
+        <li>
+            {% if item.name.endswith(".log") or item.name.endswith(".jpg") %}
+            <a href="/preview/{{ item.name }}">{{ item.name }}</a>
+            {% else %}
+            <a href="/download/{{ item.name }}">{{ item.name }}</a>
+            {% endif %}
+        </li>
+    {% endif %}
+{% endfor %}

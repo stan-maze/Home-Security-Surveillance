@@ -51,24 +51,94 @@
             cursor: pointer;
         }
 
+        .image-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .image-container img {
+            height: 120px;
+            margin-right: 10px;
+        }
+
+        .image-container a {
+            color: #ff0000;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        #image-preview {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 10px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <h2>Edit Config File</h2>
-    <form method="POST" action="">
-        {% for key, value in config.items() %}
-            <label>{{ key }}:</label>
-            {% if value|is_bool %}
-                <input type="checkbox" name="{{ key }}" {% if value %}checked{% endif %}>
-            {% elif value|is_int %}
-                <input type="number" name="{{ key }}" value="{{ value }}">
-            {% else %}
-                <input type="text" name="{{ key }}" value="{{ value }}">
-            {% endif %}
-            <br>
-        {% endfor %}
+        {% if index != 2 %}
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% for key, value in config.items() %}
+                <label>{{ key }}:</label>
+                {% if value|is_bool %}
+                    <input type="checkbox" name="{{ key }}" {% if value %}checked{% endif %}>
+                {% elif value|is_int %}
+                    <input type="number" name="{{ key }}" value="{{ value }}">
+                {% else %}
+                    <input type="text" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+                <br>
+            {% endfor %}
+            <input type="submit" value="Save">
+        </form>
+        
+        {% else %}
+            <label>Existing Images:</label>
+            <ul>
+                {% for key, value in config.items() %}
+                    <li><strong>{{ key }}:</strong> 
+                        <ul>
+                            {% for item in value %}
+                            <li class="image-container">
+                                <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image">
+                                <a href="{{ url_for('delete_image', filename=item) }}">Delete</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+
+                    <label>Upload Image:</label>
+                    <form method="POST" action="/upload-image" enctype="multipart/form-data">
+                        <label>Upload Image for {{ key }}:</label>
+                        <input type="file" name="image">
+                        <input type="hidden" name="config_key" value="{{ key }}">
+                        <br>
+                        <input type="submit" value="Upload">
+                    </form>
+                <br>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <br>
-        <input type="submit" value="Save">
-    </form>
+
+    <script>
+        // Image preview function
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var imgElement = document.getElementById('image-preview');
+                imgElement.src = reader.result;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // Attach event listener to the file input
+        var fileInput = document.querySelector('input[type="file"]');
+        fileInput.addEventListener('change', previewImage);
+    </script>
 </body>
 </html>
