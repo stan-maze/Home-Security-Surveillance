@@ -1,0 +1,42 @@
+<!-- navigation.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation</title>
+</head>
+<body>
+    <h1>Navigation Page</h1>
+    <p>修改配置后需要重启系统才能生效</p>
+    <ul>
+        <li><a href="/config">Config Page</a></li>
+        <li><a href="/log">File Page</a></li>
+        <li><a href="/cam">Camera Page</a></li>
+    </ul>
+    <form action="/restart" method="post">
+        <button type="submit" onclick="restartAndOpenNewTab()">重启</button>
+    </form>
+</body>
+<script>
+    function restartAndOpenNewTab() {
+        // Display the restart message as an alert dialog
+        var message = 'System is restarting, opening the page in a new tab in 15 seconds';
+        alert(message);
+
+        // Create a hidden iframe to prevent closing the alert dialog
+        var iframe = document.createElement('iframe');
+        iframe.src = 'about:blank';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        // Wait for 15 seconds and then open the page in a new tab
+        setTimeout(function() {
+            window.open(location.href, '_blank');
+
+            // Remove the hidden iframe
+            document.body.removeChild(iframe);
+        }, 15000);
+    }
+</script>
+
+</html>
