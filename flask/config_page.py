@@ -80,6 +80,8 @@ def edit(index):
                 config[key] = bool(value)
             elif isinstance(config[key], int):
                 config[key] = int(value)
+            elif isinstance(config[key], float):
+                config[key] = float(value)
             else:
                 config[key] = value
         save_config(file, config)

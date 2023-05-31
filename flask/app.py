@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def navigation():
+    print(os.getpid())
     return render_template('index.html')
 
 
@@ -12,8 +13,8 @@ def navigation():
 @app.route('/restart', methods=['POST'])
 def restart():
     # 执行重启操作
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
+    # python = sys.executable
+    # os.execl(python, python, *sys.argv)
     os._exit(0)
 
 from config_page import config_page
@@ -31,4 +32,5 @@ app.register_blueprint(cam_page)
 # ...其他配置和路由
 
 if __name__ == '__main__':
+    print(os.getpid())
     app.run()

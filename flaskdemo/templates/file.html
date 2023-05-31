@@ -2,55 +2,33 @@
 <html>
 <head>
     <title>File Browser</title>
-    <style>
-        ul {
-            list-style-type: none;
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 5px;
-        }
-        .folder {
-            color: blue;
-            cursor: pointer;
-        }
-        .folder:before {
-            content: "▶";
-            display: inline-block;
-            margin-right: 5px;
-            transform: rotate(0deg);
-            transition: transform 0.3s;
-        }
-        .folder.open:before {
-            transform: rotate(90deg);
-        }
-    </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var folders = document.getElementsByClassName("folder");
-            Array.prototype.forEach.call(folders, function(folder) {
-                folder.addEventListener("click", function() {
-                    this.parentNode.classList.toggle("open");
-                });
-            });
-        });
-    </script>
+
 </head>
 <body>
     <h1>File Browser</h1>
     <ul>
+        {% if parent_path %}
+        <li>
+            <a href="{{ url_for('browse', folder_path=parent_path) }}">..</a>
+        </li>
+        {% else %}
+            <a href="{{ url_for('index') }}">..</a>
+        {% endif %}
         {% for item in folder_structure %}
             {% if item.type == 'folder' %}
                 <li>
-                    <span class="folder">{{ item.name }}</span>
-                    <ul {% if loop.index == 1 %}class="open"{% endif %}>
-                        {% include '_folder.html' %}
-                    </ul>
+                    <a href="{{ url_for('browse', folder_path=item.path) }}">{{ item.name }}</a>
                 </li>
             {% else %}
-                <li>
-                    <a href="/download/{{ item.name }}">{{ item.name }}</a>
-                </li>
+                {% if item.name.endswith(".jpg") or item.name.endswith(".log") %}
+                    <li>
+                        <a href="{{ url_for('preview', file_path=item.path) }}">{{ item.name }}</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for('download', file_path=item.path) }}">{{ item.name }}</a>
+                    </li>
+                {% endif %}
             {% endif %}
         {% endfor %}
     </ul>

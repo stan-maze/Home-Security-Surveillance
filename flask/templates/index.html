@@ -14,28 +14,20 @@
         <li><a href="/cam">Camera Page</a></li>
     </ul>
     <form action="/restart" method="post">
-        <button type="submit" onclick="restartAndOpenNewTab()">重启</button>
+        <button type="submit" onclick="restart()">重启</button>
     </form>
 </body>
 <script>
-    function restartAndOpenNewTab() {
-        // Display the restart message as an alert dialog
-        var message = 'System is restarting, opening the page in a new tab in 15 seconds';
-        alert(message);
+    function restart() {
+        // 执行重启操作
+        // ...
 
-        // Create a hidden iframe to prevent closing the alert dialog
-        var iframe = document.createElement('iframe');
-        iframe.src = 'about:blank';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-
-        // Wait for 15 seconds and then open the page in a new tab
+        // 三秒后跳转到首页
         setTimeout(function() {
-            window.open(location.href, '_blank');
-
-            // Remove the hidden iframe
-            document.body.removeChild(iframe);
-        }, 15000);
+            window.close();
+            // 打开新的首页
+            window.open('/', '_blank');
+        }, 3000);
     }
 </script>
 

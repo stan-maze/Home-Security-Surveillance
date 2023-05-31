@@ -5,7 +5,6 @@ sys.path.append(BASE_DIR)
 from detector import detect_tasks_manager
 
 
-from detector import detect_tasks_manager
 cam_page = Blueprint('cam_page', __name__)
 
 

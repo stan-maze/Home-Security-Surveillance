@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, Blueprint
 import json
 import os
 
@@ -60,7 +60,7 @@ def index():
         config = read_config(file)
         configs.append(config)
 
-    return render_template('index.html', configs=configs)
+    return render_template('config.html', configs=configs)
 
 # 编辑配置文件路由
 @app.route('/edit/<int:index>', methods=['GET', 'POST'])
@@ -96,13 +96,15 @@ def delete_image(filename):
     for key, value in config.items():
         if filename in value:
             config[key].remove(filename)
+            if len(config[key]) == 0:
+                config.pop(key, None)
             break
     save_config(config_files[2], config)
 
     # Delete the image file
     if os.path.exists(image_path):
         os.remove(image_path)
-        return redirect(url_for('index'))
+        return redirect(url_for('edit', index=2))
     else:
         return "Image not found"
 
@@ -111,31 +113,35 @@ def delete_image(filename):
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     config_key = request.form.get('config_key')
+    newperson = request.form.get('name')
     image_file = request.files.get('image')
     print(config_key)
 
     if image_file:
         
         config = read_config(config_files[2])
-        filename = f'{config_key}{len(config[config_key])+1}.jpg'
-        # 保存上传的图像
-        save_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
-        image_file.save(save_path)
 
         # 更新配置文件中的图像信息
         config_file = config_files[2]
         config = read_config(config_file)
-        if config_key in config:
-            config[config_key].append(filename)
+        if newperson:
+            filename = f'{newperson}{1}.jpg'
+            # 保存上传的图像
+            save_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
+            config[newperson] = [filename]
         else:
-            config[config_key] = [filename]
+            filename = f'{config_key}{len(config[config_key])+1}.jpg'
+            # 保存上传的图像
+            save_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
+            config[config_key].append(filename)
+        image_file.save(save_path)
         save_config(config_file, config)
 
-        return redirect(url_for('index'))
+        return redirect(url_for('edit', index=2))
 
-    return "Invalid image file"
+    return "请上传图片!"
 
 
 if __name__ == '__main__':
+    # app.run(host='localhost', port=5001)
     app.run()
-

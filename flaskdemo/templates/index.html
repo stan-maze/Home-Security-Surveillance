@@ -1,103 +1,35 @@
-<!DOCTYPE html>
 <html>
-<head>
-    <title>Config Files</title>
-    <style>
-        /* CSS for the tabs */
-        .tab {
-            overflow: hidden;
-        }
-        
-        /* Style the tab links */
-        .tab button {
-            background-color: #f2f2f2;
-            float: left;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 10px 20px;
-            transition: 0.3s;
-        }
-        
-        /* Change background color of tab links on hover */
-        .tab button:hover {
-            background-color: #ddd;
-        }
-        
-        /* Create an active/current tablink class */
-        .tab button.active {
-            background-color: #ccc;
-        }
-        
-        /* Style the tab content */
-        .tabcontent {
-            display: none;
-            padding: 6px 12px;
-            border: 1px solid #ccc;
-            border-top: none;
-        }
-    </style>
-</head>
-<body>
-    <img src="obama1.jpg" alt="Image">
+  <head>
+	<style>
+	* {
+	  box-sizing: border-box;
+	  text-align: center;
+	}
 
-    <div class="tab">
-        {% for index, config in enumerate(configs) %}
-            <button class="tablinks" onclick="openTab(event, 'Tab{{ index + 1 }}')" {% if index == 0 %}id="defaultOpen"{% endif %}>
-                Config File {{ index + 1 }}
-            </button>
-        {% endfor %}
-    </div>
+	.img-container {
+	  float: left;
+	  width: 30%;
+	  padding: 5px;
+	}
 
-    {% for index, config in enumerate(configs) %}
-    <div id="Tab{{ index + 1 }}" class="tabcontent" {% if index == 0 %}style="display: block;"{% endif %}>
-        <h2>Config File {{ index + 1 }}</h2>
-        <ul>
-            {% for key, value in config.items() %}
-                <li><strong>{{ key }}:</strong> 
-                    {% if index == 2 %}
-                        <ul>
-                                    {% for item in value %}
-                                    <li>
-                                        <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image" height="120">
-                                    </li>
-                                {% endfor %}                                
-                        </ul>
-                    {% else %}
-                        {{ value }}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-        <a href="{{ url_for('edit', index=index) }}">Edit</a>
-        <hr>
-    </div>
-{% endfor %}
-
-
-    <script>
-        // JavaScript function to open the selected tab
-        function openTab(evt, tabName) {
-            // Hide all tab content
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-        
-            // Remove active class from all tab links
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-        
-            // Show the selected tab content and set the button as active
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-
-        // Set the first tab as default open
-        document.getElementById("defaultOpen").click();
-    </script>
-</body>
+	.clearfix::after {
+	  content: "";
+	  clear: both;
+	  display: table;
+	}
+	.clearfix{
+		margin-left: 500px;
+	}
+	</style>
+  </head>
+  <body>
+  	<h1>Multi-camera with YOLOv5</h1>
+  	<div class="clearfix">
+  		<div class="img-container" align="center">
+        	<p align="center">Live stream 1</p>
+        	<img src="{{ url_for('video_feed', feed_type='Camera_0') }}" class="center"  style="border:1px solid black;width:100%" alt="Live Stream 1">
+  		</div>
+	</div>
+  </body>
 </html>
+

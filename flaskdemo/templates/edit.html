@@ -3,80 +3,7 @@
 <head>
     <title>Edit Config</title>
     
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f1f1f1;
-        }
 
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        form {
-            width: 400px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        input[type="checkbox"],
-        input[type="number"],
-        input[type="text"] {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-        }
-
-        input[type="submit"] {
-            width: auto;
-            padding: 5px 20px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .image-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .image-container img {
-            height: 120px;
-            margin-right: 10px;
-        }
-
-        .image-container a {
-            color: #ff0000;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        #image-preview {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 10px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-    </style>
 </head>
 <body>
     <h2>Edit Config File</h2>
@@ -104,41 +31,55 @@
                         <ul>
                             {% for item in value %}
                             <li class="image-container">
-                                <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image">
+                                <img src="{{ url_for('get_facerec_image', filename=item) }}" alt="Image" height=120>
                                 <a href="{{ url_for('delete_image', filename=item) }}">Delete</a>
                             </li>
                             {% endfor %}
                         </ul>
                     </li>
-
-                    <label>Upload Image:</label>
                     <form method="POST" action="/upload-image" enctype="multipart/form-data">
-                        <label>Upload Image for {{ key }}:</label>
-                        <input type="file" name="image">
+                        <label>为{{ key }}新增图片:</label>
+                        <br>
+                        <input type="file" name="image" onchange="previewImage(event, '{{ key }}')">
+                        <img id="{{ key }}" src="#" alt="预览图片" style="max-width: 200px; max-height: 200px; display: none;">
+
                         <input type="hidden" name="config_key" value="{{ key }}">
                         <br>
-                        <input type="submit" value="Upload">
+                        <input type="submit" value="上传">
                     </form>
                 <br>
                 {% endfor %}
             </ul>
+            <label>add face</label>
+            <form method="POST" action="/upload-image" enctype="multipart/form-data">
+                <label>上传新用户的头像{{ key }}:</label>
+                <input type="file" name="image" onchange="previewImage(event, 'preview')">
+                <img id="preview" src="#" alt="预览图片" style="max-width: 200px; max-height: 200px; display: none;">
+                <input type="text" name="name" placeholder="输入名字">
+                <input type="hidden" name="config_key" value="{{ key }}">
+                <br>
+                <input type="submit" value="上传">
+            </form>
+
         {% endif %}
         <br>
 
     <script>
-        // Image preview function
-        function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var imgElement = document.getElementById('image-preview');
-                imgElement.src = reader.result;
-            }
-            reader.readAsDataURL(event.target.files[0]);
-        }
+        function previewImage(event, previewId) {
+            var input = event.target;
+            var preview = document.getElementById(previewId);
 
-        // Attach event listener to the file input
-        var fileInput = document.querySelector('input[type="file"]');
-        fileInput.addEventListener('change', previewImage);
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Streaming</title>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/cam');
+
+    // 接收帧视频流
+    socket.on('frame', function(frame) {
+      var img = document.getElementById('frame');
+      img.src = 'data:image/jpeg;base64,' + frame;
+    });
+  </script>
+</head>
+<body>
+  <h1>Video Streaming</h1>
+  <img id="frame" src="" alt="Frame" />
+</body>
+</html>
