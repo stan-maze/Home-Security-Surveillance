@@ -66,4 +66,4 @@ python3 app.py
     - [x] 服务的重启功能
 - [x] 告警服务的形式
 - [x] logging, 包括日志文件以及图像保存
-- [ ] 混乱的import关系和util
+- [x] 混乱的import关系和util
