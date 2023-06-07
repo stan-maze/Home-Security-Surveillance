@@ -1,0 +1,34 @@
+<!-- navigation.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation</title>
+</head>
+<body>
+    <h1>Navigation Page</h1>
+    <p>修改配置后需要重启系统才能生效</p>
+    <ul>
+        <li><a href="/config">Config Page</a></li>
+        <li><a href="/log">File Page</a></li>
+        <li><a href="/cam">Camera Page</a></li>
+    </ul>
+    <form action="/restart" method="post">
+        <button type="submit" onclick="restart()">重启</button>
+    </form>
+</body>
+<script>
+    function restart() {
+        // 执行重启操作
+        // ...
+
+        // 三秒后跳转到首页
+        setTimeout(function() {
+            window.close();
+            // 打开新的首页
+            window.open('/', '_blank');
+        }, 3000);
+    }
+</script>
+
+</html>

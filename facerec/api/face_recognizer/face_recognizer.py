@@ -1,8 +1,5 @@
 import face_recognition
-import cv2
 import numpy as np
-import yaml
-from PIL import Image
 import os
 import torch
 import json

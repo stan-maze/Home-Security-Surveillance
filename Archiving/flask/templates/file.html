@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Browser</title>
+
+</head>
+<body>
+    <h1>File Browser</h1>
+    <a href="/">返回导航页</a>
+
+    <ul>
+        {% if parent_path %}
+        <li>
+            <a href="{{ url_for('file_page.browse', folder_path=parent_path) }}">..</a>
+        </li>
+        {% else %}
+            <a href="{{ url_for('file_page.index') }}">..</a>
+        {% endif %}
+        {% for item in folder_structure %}
+            {% if item.type == 'folder' %}
+                <li>
+                    <a href="{{ url_for('file_page.browse', folder_path=item.path) }}">{{ item.name }}</a>
+                </li>
+            {% else %}
+                {% if item.name.endswith(".jpg") or item.name.endswith(".log") %}
+                    <li>
+                        <a href="{{ url_for('file_page.preview', file_path=item.path) }}">{{ item.name }}</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for('file_page.download', file_path=item.path) }}">{{ item.name }}</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </ul>
+</body>
+</html>

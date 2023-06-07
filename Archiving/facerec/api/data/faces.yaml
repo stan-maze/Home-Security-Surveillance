@@ -1,0 +1,15 @@
+- name: obama
+  image_paths:
+    - obama1.jpg
+- name: alex-lacamoire
+  image_paths:
+    - alex-lacamoire1.png
+- name: biden
+  image_paths:
+    - biden1.jpg
+- name: lin-manuel-miranda
+  image_paths:
+    - lin-manuel-miranda1.png
+- name: hrz
+  image_paths:
+    - hrz1.jpg
