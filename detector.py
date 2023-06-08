@@ -22,6 +22,7 @@ from collections import deque
 import base64
 import time
 
+
 abs_path = os.path.abspath(__file__)
 config_path = os.path.join((os.path.dirname(abs_path)), 'config.json')
 log_dir = os.path.join((os.path.dirname(abs_path)), 'log')
@@ -453,7 +454,6 @@ class detect_tasks_manager():
                         cv2.resizeWindow(str(p), im0.shape[1], im0.shape[0])
                     cv2.imshow(str(p), im0)
                     cv2.waitKey(1)  # 1 millisecond
-    
     
     
     # 使用yield方式只会在访问生成器的时候下一帧, 这会导致只能在打开网页的情况下才会推断

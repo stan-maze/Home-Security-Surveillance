@@ -1,8 +1,9 @@
 # 忽略log和log_a目录下的内容
-/log/*
-/log_a/*
-/Archiving
+/log/log/*
+/log/log_archive/*
+/Archiving/*
 
 # 除上述规则外，上传其他所有文件和目录
 !log
-!log_a
+!/log/log
+!/log/log_archive
