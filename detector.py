@@ -169,9 +169,7 @@ class detect_tasks_manager():
         print(objs)
         
         return preds, objs, im
-        
-    def alarm_and_loggging():
-        pass
+
         
     def gen_frame(self):
         def anomaly_detected(queue):

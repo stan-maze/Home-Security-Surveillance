@@ -1,5 +1,5 @@
 {
-    "source": "face.mp4",
+    "source": "fire.mp4",
     "view_img": true,
     "imgsz": 640,
     "stride": 32,

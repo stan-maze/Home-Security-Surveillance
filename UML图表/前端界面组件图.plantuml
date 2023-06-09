@@ -1,0 +1,62 @@
+@startuml 前端界面组件图
+
+!define SPRITESURL https://raw.githubusercontent.com/umlet/umlet/dist/dist/sprites/
+
+!define WEB $SPRITESURL/web/
+!define CLOUD $SPRITESURL/cloud/
+!define DB $SPRITESURL/db/
+!define DEV $SPRITESURL/dev/
+!define OFFICE $SPRITESURL/office/
+
+!define LAYOUT_STRICTNESS_MAX
+!define arrowColor #707070
+
+!define COMPONENT_STYLE
+!define COMPONENT_SPRITE $WEB/server_blue
+!define CONTAINER_STYLE
+!define CONTAINER_SPRITE $CLOUD/cloud
+
+package "Flask App" {
+  [Flask App] as flask
+  [config_page] as config
+  [file_page] as file
+  [cam_page_async] as cam
+  [detect_tasks_manager] as manager
+  [SocketIO] as socketio
+  [index.html] as index
+  [async.html] as async
+
+  [flask] --> [config] : Blueprint
+  [flask] --> [file] : Blueprint
+  [flask] --> [cam] : Blueprint
+  [flask] --> [index] : render_template
+  [flask] --> [async] : render_template
+  [flask] --> [socketio] : SocketIO
+
+  [cam] ..> [manager] : import
+  [cam] ..> [gen_frame_stream] : import
+  [socketio] --> [manager] : gen_frame_stream
+  
+  [config] ..> [config_files] : Read/Write
+  [config] ..> [is_bool] : Register Filter
+  [config] ..> [is_int] : Register Filter
+  [config] ..> [inject_enumerate] : Register Context Processor
+
+  [config] --> [get_facerec_image] : Route
+  [config] --> [read_config] : Function
+  [config] --> [save_config] : Function
+  [config] --> [index] : Route
+  [config] --> [edit] : Route
+  [config] --> [delete_image] : Route
+  [config] --> [upload_image] : Route
+  
+  
+  [file] ..> [root_folder_path] : Define
+  [file] --> [index] : Route
+  [file] --> [download] : Route
+  [file] --> [preview] : Route
+  [file] --> [browse] : Route
+  [file] ..> [get_folder_structure] : Function
+}
+
+@enduml

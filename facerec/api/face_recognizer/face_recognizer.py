@@ -10,9 +10,15 @@ json_PATH = os.path.join(DIR_PATH, 'data', 'faces.json')
 # yaml_PATH = os.path.join(DIR_PATH, 'data', 'faces.yaml')
 img_PATH = os.path.join(DIR_PATH, 'data', 'images')
 
+
+
 class face_recognizer():
     def __init__(self) -> None:
         self.known_face_encodings = {}
+        self.init_model()
+        
+
+    def init_model(self):
         with open(json_PATH) as file:
             data = json.load(file)
         # with open(yaml_PATH, 'r') as f:
@@ -29,7 +35,6 @@ class face_recognizer():
                 # TODO
                 # 多张图片
                 break
-            
             
     def infer(self, im):
 

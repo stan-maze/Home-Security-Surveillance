@@ -1,0 +1,86 @@
+@startuml 业务流程图
+
+start
+:初始化变量和载入配置文件;
+partition "初始化模型推断模块" {
+    :生成face_recognizer实例;
+    :生成fire_detector实例;
+    }
+
+partition "初始化log模块" {
+    :检查各日志文件夹;
+    partition " " {
+        note
+            日志归档
+        end note
+        :超过七天的日志压损存储;
+        :超过三十天的日志删除;
+    }
+    partition " " {
+        note
+            日志轮转
+        end note
+        :按照时间生此次日志文件夹;
+        :设置日志轮转条件, 实例化logger对象;
+
+    }
+}
+
+rectangle "初始化数据流模块, 封装dataset迭代器"{
+    :传出dataset;
+}
+while (从dataset中取得帧) is (true)
+    partition "帧推断模块" {
+        :接受传入帧;
+        if (在非法闯入检测时间段内) then (是)
+        :传入人脸识别模块推断;
+        endif
+        :传入火焰检测模块推断;
+        :整合拼接检测结果;
+    }
+    :传出检测结果;
+  if (检测到物体) then (是)
+    :在图像上绘制边界框和标签;
+    :更新检测队列缓冲;
+    
+    partition "警告和日志模块" {
+        :检测结果写入文本log;
+        if (检测到异常(火焰/陌生人)) then (是)
+            if (报警触发且尚未发送警报或耐心耗尽) then (是)
+                :将当前帧保存为图像;
+                :发送带有图像和相关信息的电子邮件;
+                :重置耐心计数器;
+            endif
+            if (未在录像中) then (是)
+                :开始录制并初始化视频编写器;
+            endif
+            if (正在录像中) then (是)
+                :继续将帧写入视频;
+                if (达到最大长度或异常消失) then (是)
+                :停止录制并释放视频编写器;
+                endif
+            endif
+        endif
+    }
+  else
+    :记录“未检测到物体”;
+  endif
+  
+  :将结果图像转换为Base64编码;
+  :使用Socket发送图像到前端;
+
+endwhile
+stop
+
+rectangle "dataset迭代器" {
+start
+:opencv载入摄像头(视频文件)数据流cam;
+while (cam.read取出帧) is (true)
+    :对帧进行resize, BGR转化RGB, 数值连续化等前处理操作;
+    :传出帧数据;
+endwhile
+end
+
+}
+
+@enduml

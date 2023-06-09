@@ -19,7 +19,7 @@ def gen_frame_stream(*args, **kwargs):
 
 @cam_page.route('/')
 def index():
-    return render_template('async.html')
+    return render_template('cam_async.html')
 
 if __name__ == '__main__':
     pass
