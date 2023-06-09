@@ -1,0 +1,9 @@
+{
+    "weights": "best.pt",
+    "device": "cpu",
+    "conf_thres": 0.25,
+    "iou_thres": 0.45,
+    "augment": false,
+    "dnn": true
+  }
+  
