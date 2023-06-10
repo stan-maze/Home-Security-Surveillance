@@ -107,12 +107,14 @@ class fire_detector(Detector):
         self.imgsz = imgsz
         self.stride = stride
         self.pt = pt
+        self.fp16 = model.fp16
         
 
     def infer(self, im):
         # Inference
         # yolov5模型对每帧的推理， 但是是原始向量模式，要经过non_max_suppression才可理解
         # with dt[1]:
+
         pred = self.model(im, augment=self.augment, visualize=self.visualize)
         # NMS
         # 这里之后可以尝试插入人脸识别, 这里才是真正的推断

@@ -8,11 +8,10 @@
     "hide_conf": true,
     "on_alarm": true,
     "patience": 0.5,
-    "recemail": "693794539@qq.com",
+    "recemail": "2311306511@qq.com",
     "max_length": 30,
     "maxMB": 1,
-    "backupCount": 10
-
-
-
+    "backupCount": 10, 
+    "start_time": "10.00PM", 
+    "end_time": "4.00AM"
 }

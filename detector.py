@@ -57,12 +57,26 @@ class detect_tasks_manager():
         
         self.max_length = self.config['max_length']
         
+        self.start_time = datetime.strptime(self.config['start_time'], "%I.%M%p").time()
+        self.end_time = datetime.strptime(self.config['end_time'], "%I.%M%p").time()
+        # 不同的比较方式
+        self.flag = self.start_time > self.end_time
 
         self.init_dataloader()
         self.init_logger()
         # self.preprocess()
         # self.init_logger()
         self.init_alarm()
+    
+    
+    def is_within_time_range(self):
+        now = datetime.now().time()
+        # 处理跨越午夜的情况，例如10.pm到凌晨4.am
+        if self.flag:
+            return now >= self.start_time or now <= self.end_time
+        else:
+            return self.start_time <= now <= self.end_time
+    
     
     def init_logger(self):
         self.logger = logger()
@@ -169,18 +183,24 @@ class detect_tasks_manager():
         # self.log_handler = log_handler
         
     def infer_frame(self, im):
-        
-        facepred, face = self.faceRecognizer.infer(im)
+        facepred, face = None, None
+        if self.is_within_time_range():
+            facepred, face = self.faceRecognizer.infer(im)
 
         im = torch.from_numpy(im).to(self.device)
         im = im.half() if self.fp16 else im.float()  # uint8 to fp16/32
         im /= 255  # 0 - 255 to 0.0 - 1.0
         if len(im.shape) == 3:
             im = im[None]  # expand for batch dim
-
+        
         # 输入的是百分比坐标, 输出怎么变回了绝对坐标, 奇怪
         firepred, fire = self.fireDetector.infer(im)
         # print(facepred, face, facepred[0].dtype)
+        
+        if facepred is None:
+            # print('不在非法闯入检测时间段内')
+            print(fire)
+            return firepred, fire, im
         preds = [torch.cat((facepred[0], firepred[0]), dim=0)]
         objs = [face[0] + fire[0]]
         print(objs)
@@ -280,7 +300,7 @@ class detect_tasks_manager():
 
                 # Stream results
                 im0 = annotator.result()
-                obj_queue.append('fire' in obj or 'Unknow' in obj)
+                obj_queue.append('fire' in obj or 'Unknown' in obj)
                 
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
@@ -424,7 +444,7 @@ class detect_tasks_manager():
                 # Stream results
                 im0 = annotator.result()
                 
-                obj_queue.append('fire' in obj or 'Unknow' in obj)
+                obj_queue.append('fire' in obj or 'Unknown' in obj)
                 
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
@@ -552,7 +572,7 @@ class detect_tasks_manager():
                 # Stream results
                 im0 = annotator.result()
                 
-                obj_queue.append('fire' in obj or 'Unknow' in obj)
+                obj_queue.append('fire' in obj or 'Unknown' in obj)
                 
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
