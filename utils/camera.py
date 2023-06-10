@@ -4,7 +4,7 @@ import glob
 import time
 import numpy as np
 from pathlib import Path
-from threading import ThreadError
+from threading import Thread
 from utils.augmentations import letterbox
 from utils.general import clean_str, cv2
 

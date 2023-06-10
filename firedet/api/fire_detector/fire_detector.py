@@ -1,6 +1,8 @@
 import os
 import sys
 from pathlib import Path
+import json
+from utils.detectorABC import Detector
 
 
 FILE = Path(__file__).resolve()
@@ -18,9 +20,8 @@ from models.common import DetectMultiBackend
 from utils.general import check_img_size, non_max_suppression
 from utils.torch_utils import select_device, smart_inference_mode
 
-import json
 
-class fire_detector:
+class fire_detector(Detector):
     def __init__(self) -> None:
         with open(config_PATH, 'r') as f:
             config = json.load(f)

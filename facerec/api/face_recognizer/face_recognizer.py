@@ -3,16 +3,16 @@ import numpy as np
 import os
 import torch
 import json
+from utils.detectorABC import Detector
+
 
 CURRENT_PATH = os.path.abspath(__file__)
 DIR_PATH = os.path.dirname(os.path.dirname(CURRENT_PATH))
 json_PATH = os.path.join(DIR_PATH, 'data', 'faces.json')
-# yaml_PATH = os.path.join(DIR_PATH, 'data', 'faces.yaml')
 img_PATH = os.path.join(DIR_PATH, 'data', 'images')
 
 
-
-class face_recognizer():
+class face_recognizer(Detector):
     def __init__(self) -> None:
         self.known_face_encodings = {}
         self.init_model()

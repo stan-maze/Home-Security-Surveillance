@@ -4,7 +4,8 @@ from utils.plots import Annotator, save_one_box
 from utils.torch_utils import select_device
 from utils.camera import LoadImages, LoadStreams
 # from utils.dataloaders import LoadStreams
-from utils.alert import send_email
+from utils.log_alarm import alarm, logger
+# from utils.log_alarm import alarm, send_email
 
 from pathlib import Path
 import json
@@ -12,7 +13,7 @@ import torch
 import platform
 from collections import Counter
 import os
-import datetime
+from datetime import datetime, timedelta
 import logging
 import logging.handlers
 import tarfile
@@ -27,9 +28,10 @@ abs_path = os.path.abspath(__file__)
 config_path = os.path.join((os.path.dirname(abs_path)), 'config.json')
 log_dir = os.path.join((os.path.dirname(abs_path)), 'log')
 
-
 from facerec import face_recognizer
 from firedet import fire_detector
+
+
 
 class detect_tasks_manager():
     def __init__(self) -> None:
@@ -43,18 +45,33 @@ class detect_tasks_manager():
         self.device = select_device(self.fireDetector.device)
         
         self.fp16 = self.fireDetector.model.fp16
+    
         
+        self.on_alarm = self.config['on_alarm']
+        if self.config['patience'] < 1:
+            seconds = int(self.config['patience']*60)
+            self.patience = timedelta(seconds=seconds)
+        else:
+            self.patience = timedelta(minutes=self.config['patience'])
+        # self.recemail = self.config['recemail']
         
-        # 后面整合到config里
-        self.recording = False
-        self.on_alarm = True
-        self.patience = 100
-        self.recemail = '2311306511@qq.com'
+        self.max_length = self.config['max_length']
         
 
         self.init_dataloader()
-        self.preprocess()
         self.init_logger()
+        # self.preprocess()
+        # self.init_logger()
+        self.init_alarm()
+    
+    def init_logger(self):
+        self.logger = logger()
+        self.logger.preprocess()
+        self.logger.setup(maxMB=self.config['maxMB'], backupCount=self.config['backupCount'])
+    
+    def init_alarm(self):
+        self.alarm = alarm()
+        self.alarm.setup(self.config['recemail'])
         
     def init_dataloader(self):
         source = self.config['source']
@@ -88,22 +105,22 @@ class detect_tasks_manager():
             if not os.path.exists(required_dir):
                 os.makedirs(required_dir)
         
-        current_time = datetime.datetime.now()
+        current_time = datetime.now()
         # 清理超过一个月的日志归档记录
-        one_month_ago = current_time - datetime.timedelta(days=30)
+        one_month_ago = current_time - timedelta(days=30)
         for archive_file in glob.glob(os.path.join(archive_dir, '*.tar.gz')):
-            modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(archive_file))
+            modified_time = datetime.fromtimestamp(os.path.getmtime(archive_file))
             if modified_time < one_month_ago:
                 os.remove(archive_file)
                 print(f"Deleted archived log file: {archive_file}")
 
         # 归档超过一周的日志目录并压缩
-        one_week_ago = current_time - datetime.timedelta(days=7)
+        one_week_ago = current_time - timedelta(days=7)
         for log_subdir in os.listdir(sub_log_dir):
             log_subdir_path = os.path.join(sub_log_dir, log_subdir)
             if not os.path.isdir(log_subdir_path):
                 continue
-            modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(log_subdir_path))
+            modified_time = datetime.fromtimestamp(os.path.getmtime(log_subdir_path))
             if modified_time < one_week_ago:
                 # 创建归档文件路径
                 archive_file = os.path.join(archive_dir, f"{log_subdir}.tar.gz")
@@ -119,9 +136,9 @@ class detect_tasks_manager():
         self.sub_log_dir = sub_log_dir
         self.archive_dir = archive_dir
     
-    def init_logger(self):
+    def _init_logger(self):
         # 创建按时间命名的目录
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         current_log_dir = os.path.join(self.sub_log_dir, current_time)
         os.makedirs(current_log_dir)
 
@@ -135,7 +152,7 @@ class detect_tasks_manager():
         # 创建RotatingFileHandler对象，设置日志轮转条件
         log_handler = logging.handlers.RotatingFileHandler(
             log_file,
-            maxBytes=10 * 1024,  # 每个日志文件的最大大小（字节）
+            maxBytes=1024 * 1024,  # 每个日志文件的最大大小（字节）
             backupCount=3,  # 保留的日志文件个数（包括当前文件）
         )
         log_handler.setLevel(logging.INFO)
@@ -147,9 +164,9 @@ class detect_tasks_manager():
         # 添加日志处理器到logger
         logger.addHandler(log_handler)
         
-        self.current_log_dir = current_log_dir
+        self.logger.current_log_dir = current_log_dir
         self.logger = logger
-        self.log_handler = log_handler
+        # self.log_handler = log_handler
         
     def infer_frame(self, im):
         
@@ -170,7 +187,6 @@ class detect_tasks_manager():
         
         return preds, objs, im
 
-        
     def gen_frame(self):
         def anomaly_detected(queue):
             if len(queue) < 5:
@@ -184,7 +200,9 @@ class detect_tasks_manager():
         max_length = 30  # 最大录像长度（单位：帧）
         alert_sent = False
         recording = False
-        patience = self.patience
+        last_time = datetime.now()
+
+        # patience = self.patience
         video_writer = None
                 
                 
@@ -254,10 +272,10 @@ class detect_tasks_manager():
                             
                     
                     # 如果有obj都是要进入log的
-                    self.logger.info(s)
+                    self.logger.log(s)
                 # 没检测到东西
                 else:
-                    self.logger.info('nothing')
+                    self.logger.log('nothing')
                     
 
                 # Stream results
@@ -267,22 +285,25 @@ class detect_tasks_manager():
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
                     if self.on_alarm:
-                        print(alert_sent, patience)
-                        if not alert_sent or patience == 0:
-                            current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                            img_path = os.path.join(self.current_log_dir, f'{s}_{current_time}.jpg')
+                        
+                        # print(alert_sent, patience)
+                        if not alert_sent or (datetime.now() - last_time>timedelta(minutes=self.patience)):
+                            current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                            img_path = os.path.join(self.logger.current_log_dir, f'{s}_{current_time}.jpg')
                             cv2.imwrite(img_path, im0)
-                            alert_sent = send_email(self.recemail, '摄像机发现异常!', s, img_path)
+                            alert_sent = self.alarm.send_alert('摄像机发现异常!', s, img_path)
+                            
                             print('发送邮件')
-                            patience = self.patience
-                        else:
-                            patience -= 1
+                            last_time = datetime.now()
+                        # else:
+                        #     print('patience:', patience)
+                        #     patience -= 1
                     # 录视频
                     if not recording:
                         recording = True
-                        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                        video_path = os.path.join(self.current_log_dir, f'{current_time}.avi')
-                        self.logger.info(f'开始录像, 录像保存至: {video_path}')
+                        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                        video_path = os.path.join(self.logger.current_log_dir, f'{current_time}.avi')
+                        self.logger.log(f'开始录像, 录像保存至: {video_path}')
                         print('开始录像')
                         fps, w, h = 10, im0.shape[1], im0.shape[0]
                         video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
@@ -300,11 +321,10 @@ class detect_tasks_manager():
                                 video_writer.release()
                                 video_writer = None
                                 frame_count = 0
-                                self.logger.info(f'录像结束, 保存至{video_path}')
+                                self.logger.log(f'录像结束, 保存至{video_path}')
                                 print(f'录像结束, 保存至{video_path}')
                 frame = cv2.imencode('.jpg', im0)[1].tobytes()
                 yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') 
-    
     
     def run_detect(self):
         def anomaly_detected(queue):
@@ -319,7 +339,8 @@ class detect_tasks_manager():
         max_length = 30  # 最大录像长度（单位：帧）
         alert_sent = False
         recording = False
-        patience = self.patience
+        # patience = self.patience
+        last_time = datetime.now()
         video_writer = None
                 
                 
@@ -376,7 +397,7 @@ class detect_tasks_manager():
                         *xyxy, conf, _ = deti
                         
                         if view_img:
-                            label = f'{cls} {conf:.2f}'
+                            label = str(cls) if self.config['hide_conf'] else f'{cls} {conf:.2f}'
                             annotator.box_label(xyxy, label)
                         
                         # if self.config['save_txt']:  # Write to file
@@ -394,10 +415,10 @@ class detect_tasks_manager():
                             
                     
                     # 如果有obj都是要进入log的
-                    self.logger.info(s)
+                    self.logger.log(s)
                 # 没检测到东西
                 else:
-                    self.logger.info('nothing')
+                    self.logger.log('nothing')
                     
 
                 # Stream results
@@ -407,23 +428,26 @@ class detect_tasks_manager():
                 
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
+                    current_time = datetime.now()
                     if self.on_alarm:
-                        print(alert_sent, patience)
-                        if not alert_sent or patience == 0:
-                            current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                            img_path = os.path.join(self.current_log_dir, f'{s}_{current_time}.jpg')
+                        print(alert_sent, last_time)
+                        if not alert_sent or (current_time - last_time>self.patience):
+                            curr = current_time.strftime("%Y-%m-%d_%H-%M-%S")
+                            img_path = os.path.join(self.logger.current_log_dir, f'{s}_{curr}.jpg')
                             cv2.imwrite(img_path, im0)
-                            alert_sent = send_email(self.recemail, '摄像机发现异常!', s, img_path)
+                            alert_sent = self.alarm.send_alert('摄像机发现异常!', s, img_path)
+                            
                             print('发送邮件')
-                            patience = self.patience
-                        else:
-                            patience -= 1
+                            last_time = current_time
+                            # patience = self.patience
+                        # else:
+                        #     patience -= 1
                     # 录视频
                     if not recording:
                         recording = True
-                        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                        video_path = os.path.join(self.current_log_dir, f'{current_time}.avi')
-                        self.logger.info(f'开始录像, 录像保存至: {video_path}')
+                        curr = current_time.strftime("%Y-%m-%d_%H-%M-%S")
+                        video_path = os.path.join(self.logger.current_log_dir, f'{curr}.avi')
+                        self.logger.log(f'开始录像, 录像保存至: {video_path}')
                         print('开始录像')
                         fps, w, h = 10, im0.shape[1], im0.shape[0]
                         video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
@@ -441,7 +465,7 @@ class detect_tasks_manager():
                                 video_writer.release()
                                 video_writer = None
                                 frame_count = 0
-                                self.logger.info(f'录像结束, 保存至{video_path}')
+                                self.logger.log(f'录像结束, 保存至{video_path}')
                                 print(f'录像结束, 保存至{video_path}')
                 
                 # 这里是绘制 
@@ -453,10 +477,9 @@ class detect_tasks_manager():
                     cv2.imshow(str(p), im0)
                     cv2.waitKey(1)  # 1 millisecond
     
-    
     # 使用yield方式只会在访问生成器的时候下一帧, 这会导致只能在打开网页的情况下才会推断
     # 传入一个socket异步传出数据
-    def gen_frame_stream(self, socketio):
+    def gen_frame_stream(self, socketio=None):
         
         def anomaly_detected(queue):
             if len(queue) < 5:
@@ -467,16 +490,13 @@ class detect_tasks_manager():
         
         config = self.config
         
-        max_length = 30  # 最大录像长度（单位：帧）
+        max_length = self.max_length  # 最大录像长度（单位：帧）
         alert_sent = False
         recording = False
-        patience = self.patience
+        last_time = datetime.now()
+        # patience = self.patience
         video_writer = None
-                
-                
-        # save_img = not config['nosave'] and not self.source.endswith('.txt')  # save inference images
-        # if self.webcam:
-            # view_img = check_imshow(warn=True)
+            
         view_img = check_imshow(warn=True)
             
         # 从webcam中取帧
@@ -484,7 +504,6 @@ class detect_tasks_manager():
         frame_count = 0
         obj_queue = deque(maxlen=7)
         for path, im, im0s, _ in self.dataset:
-            # config['visualize'] = increment_path(config['save_dir'] / Path(path).stem, mkdir=True) if config['visualize'] else False
             
             preds, objs, im = self.infer_frame(im)
             
@@ -519,14 +538,15 @@ class detect_tasks_manager():
                         *xyxy, conf, _ = deti
                         
                         if view_img:
-                            label = f'{cls} {conf:.2f}'
+                            # label = f'{cls} {conf:.2f}'
+                            label = str(cls) if self.config['hide_conf'] else f'{cls} {conf:.2f}'
                             annotator.box_label(xyxy, label)
                                             
                     # 如果有obj都是要进入log的
-                    self.logger.info(s)
+                    self.logger.log(s)
                 # 没检测到东西
                 else:
-                    self.logger.info('nothing')
+                    self.logger.log('nothing')
                     
 
                 # Stream results
@@ -536,23 +556,25 @@ class detect_tasks_manager():
                 
                 if anomaly_detected(obj_queue):
                     # 记录帧, 报警, 这两个要过滤重复
+                    current_time = datetime.now()
                     if self.on_alarm:
-                        print(alert_sent, patience)
-                        if not alert_sent or patience == 0:
-                            current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                            img_path = os.path.join(self.current_log_dir, f'{s}_{current_time}.jpg')
+                        print(alert_sent, last_time)
+                        if not alert_sent or (current_time - last_time>self.patience):
+                            curr = current_time.strftime("%Y-%m-%d_%H-%M-%S")
+                            img_path = os.path.join(self.logger.current_log_dir, f'{s}_{curr}.jpg')
                             cv2.imwrite(img_path, im0)
-                            alert_sent = send_email(self.recemail, '摄像机发现异常!', s, img_path)
+                            # alert_sent = send_email('2311306511@qq.com', '摄像机发现异常!', s, img_path)
+                            alert_sent = self.alarm.send_alert('摄像机发现异常!', s, img_path)
+                            
                             print('发送邮件')
-                            patience = self.patience
-                        else:
-                            patience -= 1
+                            last_time = current_time
+                        
                     # 录视频
                     if not recording:
                         recording = True
-                        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                        video_path = os.path.join(self.current_log_dir, f'{current_time}.avi')
-                        self.logger.info(f'开始录像, 录像保存至: {video_path}')
+                        curr = current_time.strftime("%Y-%m-%d_%H-%M-%S")
+                        video_path = os.path.join(self.logger.current_log_dir, f'{curr}.avi')
+                        self.logger.log(f'开始录像, 录像保存至: {video_path}')
                         print('开始录像')
                         fps, w, h = 10, im0.shape[1], im0.shape[0]
                         video_writer = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
@@ -570,15 +592,21 @@ class detect_tasks_manager():
                                 video_writer.release()
                                 video_writer = None
                                 frame_count = 0
-                                self.logger.info(f'录像结束, 保存至{video_path}')
+                                self.logger.log(f'录像结束, 保存至{video_path}')
                                 print(f'录像结束, 保存至{video_path}')
                 
-    
-                # 将结果转换为base64编码
-                _, buffer = cv2.imencode('.jpg', im0)
-                frame_base64 = base64.b64encode(buffer)
-                socketio.emit('frame', frame_base64.decode())
-                print('detector!', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+                if socketio is not None:
+                    # 将结果转换为base64编码
+                    _, buffer = cv2.imencode('.jpg', im0)
+                    frame_base64 = base64.b64encode(buffer)
+                    socketio.emit('frame', frame_base64.decode())
+                elif self.config['view_img']:
+                    if platform.system() == 'Linux' and p not in windows:
+                        windows.append(p)
+                        cv2.namedWindow(str(p), cv2.WINDOW_NORMAL | cv2.WINDOW_KEEPRATIO)  # allow window resize (Linux)
+                        cv2.resizeWindow(str(p), im0.shape[1], im0.shape[0])
+                    cv2.imshow(str(p), im0)
+                    cv2.waitKey(1)  # 1 millisecond
         
     
 def test():

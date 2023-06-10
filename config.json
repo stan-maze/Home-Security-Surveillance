@@ -5,5 +5,14 @@
     "stride": 32,
     "line_thickness": 3,
     "hide_labels": false,
-    "hide_conf": false
+    "hide_conf": true,
+    "on_alarm": true,
+    "patience": 0.5,
+    "recemail": "2311306511@qq.com",
+    "max_length": 30,
+    "maxMB": 1,
+    "backupCount": 10
+
+
+
 }
