@@ -1,6 +1,7 @@
 @startuml 系统类图
 
 abstract class detector {
+    + __init__()
     + init_model()
     + infer()
 }
@@ -9,13 +10,13 @@ abstract class detector {
 class fire_detector {
   - weights: str
   - source: str
-  - data: str
+  ' - data: str
   - imgsz: Tuple[int, int]
   ...
   - conf_thres: float
-  - iou_thres: float
+  ' - iou_thres: float
   - max_det: int
-  - device: str
+  ' - device: str
   - view_img: bool
 '   - save_txt: bool
 '   - save_conf: bool
@@ -35,7 +36,7 @@ class fire_detector {
 '   - half: bool
 '   - dnn: bool
 '   - vid_stride: int
-'   - model: DetectMultiBackend
+  - model: DetectMultiBackend
 '   - names: List[str]
 '   - stride: int
 '   - pt: bool
@@ -64,7 +65,11 @@ class face_recognizer {
   + infer(im)
 }
 
-
+interface Iterator {
+    + __iter__() : LoadStreams
+    + __next__() : Tuple[List[str], ndarray, List[Optional[ndarray]], None]
+    + __len__() : int
+}
 
 class LoadStreams {
     - mode: str
@@ -73,10 +78,11 @@ class LoadStreams {
     - imgs: List[Optional[ndarray]]
     - sources: List[str]
     - rect: bool
-    + __init__(sources: Union[str, List[str]], img_size: int, stride: int)
+    + __init__(...)
     - update(index: int, cap: cv2.VideoCapture)
     + __iter__() : LoadStreams
-    + __next__() : Tuple[List[str], ndarray, List[Optional[ndarray]], None]
+    ' + __next__() : Tuple[List[str], ndarray, List[Optional[ndarray]], None]
+    + __next__() : ...
     + __len__() : int
 }
 
@@ -92,49 +98,73 @@ class LoadImages {
     - nframes: int
     + __init__(path: str, img_size: int, stride: int)
     + __iter__() : LoadImages
-    + __next__() : Tuple[str, ndarray, ndarray, Optional[cv2.VideoCapture]]
+    ' + __next__() : Tuple[str, ndarray, ndarray, Optional[cv2.VideoCapture]]
+    + __next__() : ...
     + new_video(path: str)
     + __len__() : int
 }
 
 class detect_tasks_manager {
-    - config: dict
+    - config: dict 
     - faceRecognizer: face_recognizer
     - fireDetector: fire_detector
     - device: str
     - fp16: bool
-    - recording: bool
     - on_alarm: bool
-    - patience: int
-    - recemail: str
+    - patience: float
     - save_dir: str
     - source: str
     - webcam: bool
     - dataset: Union[LoadStreams, LoadImages]
-    - sub_log_dir: str
-    - archive_dir: str
-    - current_log_dir: str
-    - logger: logging.Logger
-    - log_handler: logging.handlers.RotatingFileHandler
+    - alarm: alarm
+    - logger: logger
     + __init__()
     + init_dataloader()
-    + preprocess()
+    ' + preprocess()
+    + init_alarm()
     + init_logger()
+    + is_within_time_range()
+    ' + init_logger()
     + infer_frame(im: ndarray) : tuple
-    + gen_frame()
+    + gen_frame_stream(socketio: SocketIO = None)
 
 }
+
+class alarm {
+  - smtp_server
+  - smtp_port
+  - sender_email
+  - password
+  + __init__()
+  + setup(recipient_email: str)
+  + send_alert(subject: str, body: str, image_path: str)
+}
+
+class logger {
+  - sub_log_dir
+  - archive_dir
+  + __init__()
+  + preprocess()
+  + setup(maxMB: float, backupCount: int)
+  + log(information: str)
+}
+
+
 
 DetectMultiBackend --> fire_detector
 
 detector <|-- fire_detector
 detector <|-- face_recognizer
 
+Iterator <|.. LoadStreams
+Iterator <|.. LoadImages
+
 face_recognizer --> detect_tasks_manager
 LoadImages --> detect_tasks_manager
 LoadStreams --> detect_tasks_manager
-send_email --> detect_tasks_manager
+alarm --> detect_tasks_manager
 logger --> detect_tasks_manager
+logger -[hidden]-> alarm
 fire_detector --> detect_tasks_manager
 
 

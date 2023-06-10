@@ -1,5 +1,5 @@
 {
-    "source": "fire.mp4",
+    "source": "0",
     "view_img": true,
     "imgsz": 640,
     "stride": 32,
@@ -12,6 +12,6 @@
     "max_length": 30,
     "maxMB": 1,
     "backupCount": 10, 
-    "start_time": "10.00PM", 
-    "end_time": "4.00AM"
+    "start_time": "9.00AM", 
+    "end_time": "6.00PM"
 }

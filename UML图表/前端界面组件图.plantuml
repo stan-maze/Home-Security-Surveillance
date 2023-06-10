@@ -1,32 +1,32 @@
-@startuml 前端界面组件图
+@startuml
 
 !define SPRITESURL https://raw.githubusercontent.com/umlet/umlet/dist/dist/sprites/
 
-!define WEB $SPRITESURL/web/
-!define CLOUD $SPRITESURL/cloud/
-!define DB $SPRITESURL/db/
-!define DEV $SPRITESURL/dev/
-!define OFFICE $SPRITESURL/office/
+!define WEB_COLOR #5DADE2
+!define CLOUD_COLOR #7D3C98
+!define DB_COLOR #45B39D
+!define DEV_COLOR #F4D03F
+!define OFFICE_COLOR #EB984E
 
 !define LAYOUT_STRICTNESS_MAX
 !define arrowColor #707070
 
 !define COMPONENT_STYLE
-!define COMPONENT_SPRITE $WEB/server_blue
+!define COMPONENT_SPRITE $WEB_COLOR/server_blue
 !define CONTAINER_STYLE
-!define CONTAINER_SPRITE $CLOUD/cloud
+!define CONTAINER_SPRITE $CLOUD_COLOR/cloud
 
 package "Flask App" {
-  [Flask App] as flask
-  [config_page] as config
-  [file_page] as file
-  [cam_page_async] as cam
+  [Flask App] as flask #cd5663
+  [config_page] as config #5DADE2
+  [file_page] as file #45B39D
+  [cam_page_async] as cam #EB984E
   [detect_tasks_manager] as manager
   [SocketIO] as socketio
   [index.html] as index
   [async.html] as async
 
-  [flask] --> [config] : Blueprint
+  [flask] -u-> [config] : Blueprint
   [flask] --> [file] : Blueprint
   [flask] --> [cam] : Blueprint
   [flask] --> [index] : render_template
@@ -38,18 +38,21 @@ package "Flask App" {
   [socketio] --> [manager] : gen_frame_stream
   
   [config] ..> [config_files] : Read/Write
-  [config] ..> [is_bool] : Register Filter
-  [config] ..> [is_int] : Register Filter
-  [config] ..> [inject_enumerate] : Register Context Processor
+  ' [config] ..> [is_bool] : Register Filter
+  ' [config] ..> [is_int] : Register Filter
+  ' [config] ..> [inject_enumerate] : Register Context Processor
 
   [config] --> [get_facerec_image] : Route
   [config] --> [read_config] : Function
   [config] --> [save_config] : Function
-  [config] --> [index] : Route
+  [config] -d-> [index] : Route
   [config] --> [edit] : Route
   [config] --> [delete_image] : Route
   [config] --> [upload_image] : Route
   
+  ' [config_files] -[hidden]d-> [async]
+  ' [config_files] -[hidden]d-> [file]
+  ' [config_files] -[hidden]d-> [cam]
   
   [file] ..> [root_folder_path] : Define
   [file] --> [index] : Route
