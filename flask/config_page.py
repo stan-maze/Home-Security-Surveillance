@@ -4,28 +4,17 @@ import os
 
 config_page = Blueprint('config_page', __name__)
 
-
 dirpath = os.path.dirname(os.path.abspath(__file__))
 dirpath = os.path.dirname(dirpath)
-
-@config_page.route('/config/facerec/images/<filename>', methods=['GET'])
-def get_facerec_image(filename):
-    image_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
-    # Perform necessary validations and security checks on image_path
-
-    return send_file(image_path, mimetype='image/jpeg')  # Adjust the mimetype as per your image format
-
 
 # 配置文件路径
 config_files = [
     # 控制器参数
     '../config.json',
-    # 日志保存/报警参数
-    '../config.json',
-    # 人脸识别参数, 这个要多花点功夫, 显示图片
-    '../facerec/api/data/faces.json',
     # 火焰识别参数
     '../firedet/api/fire_detector/config.json'
+    # 人脸识别参数, 这个要多花点功夫, 显示图片
+    '../facerec/api/data/faces.json',
 ]
 
 # 读取配置文件
@@ -52,6 +41,7 @@ def is_int(value):
 def inject_enumerate():
     return dict(enumerate=enumerate, list=list)
 
+
 # 主页路由
 @config_page.route('/config')
 def index():
@@ -68,7 +58,6 @@ def index():
 def edit(index):
     file = config_files[index]
     config = read_config(file)
-
     if request.method == 'POST':
         # 更新配置文件内容
         for key in config:
@@ -89,23 +78,34 @@ def edit(index):
 
     return render_template('edit.html', config=config, index=index)
 
+
+@config_page.route('/config/facerec/images/<filename>', methods=['GET'])
+def get_facerec_image(filename):
+    image_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
+    return send_file(image_path, mimetype='image/jpeg')
+
+
+
+
 # 删除图片路由
 @config_page.route('/config/delete-image/<filename>', methods=['GET'])
 def delete_image(filename):
     image_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)
-    # Perform necessary validations and security checks on image_path
-
+    # 必然人脸配置页,直接读取第2个
     config = read_config(config_files[2])
+    # 首先修改配置
     for key, value in config.items():
+        # 删除配置项中这张图片的信息
         if filename in value:
             config[key].remove(filename)
+            # 如果是该人最后一张图片，则此人的信息也要删除
             if len(config[key]) == 0:
                 config.pop(key, None)
             break
     save_config(config_files[2], config)
 
-    # Delete the image file
     if os.path.exists(image_path):
+        # 然后是真正删除图片
         os.remove(image_path)
         return redirect(url_for('config_page.edit', index=2))
     else:
@@ -121,13 +121,13 @@ def upload_image():
     print(config_key)
 
     if image_file:
-        
         config = read_config(config_files[2])
 
         # 更新配置文件中的图像信息
         config_file = config_files[2]
         config = read_config(config_file)
-        if newperson:
+        # 有两种上传方式，一种是已有的人上传新的图片，另一种是新建用户的图片
+        if newperson:   # 新建用户的图片
             filename = f'{newperson}{1}.jpg'
             # 保存上传的图像
             save_path = os.path.join(dirpath, 'facerec', 'api', 'data', 'images', filename)

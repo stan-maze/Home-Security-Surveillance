@@ -16,11 +16,12 @@ config_PATH = os.path.join(DIR_PATH, 'utils', 'em_config.json')
 log_dir = os.path.join(DIR_PATH, 'log')
 
 
-with open(config_PATH) as f:
-    config = json.load(f)
+
 class alarm():
     def __init__(self) -> None:
         # 从配置文件中获取参数
+        with open(config_PATH) as f:
+            config = json.load(f)
         self.smtp_server = config['smtp_server']
         self.smtp_port = config['smtp_port']
         self.sender_email = config['sender_email']
@@ -28,7 +29,7 @@ class alarm():
 
     def setup(self, recipient_email):
         self.recipient_email = recipient_email
-        print(self.recipient_email)
+        # print(self.recipient_email)
     
     def send_alert(self, subject, body, image_path):
         # 创建MIMEMultipart对象，并设置邮件头部信息

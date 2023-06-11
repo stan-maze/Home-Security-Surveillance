@@ -58,6 +58,20 @@ class DetectMultiBackend extends nn.module{
   + warmup()
 }
 
+class dlib.FaceRecognitionUtils {
+    + face_distance(face_encodings, face_to_compare)
+    + load_image_file(file, mode)
+    + _raw_face_locations(img, number_of_times_to_upsample=1, model="hog")
+    + face_locations(img, number_of_times_to_upsample=1, model="hog")
+    + _raw_face_locations_batched(images, number_of_times_to_upsample=1, batch_size=128)
+    + batch_face_locations(images, number_of_times_to_upsample=1, batch_size=128)
+    + _raw_face_landmarks(face_image, face_locations=None, model="large")
+    + face_landmarks(face_image, face_locations=None, model="large")
+    + face_encodings(face_image, known_face_locations=None, num_jitters=1, model="small")
+    + compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.6)
+}
+
+
 class face_recognizer {
   - known_face_encodings: dict
   + __init__()
@@ -149,23 +163,40 @@ class logger {
   + log(information: str)
 }
 
+class cv2.VideoCapture  {}
+
+package mail {
+  class email
+  class smtplib
+}
+
+package log {
+  class logging
+  class tarfile
+}
 
 
 DetectMultiBackend --> fire_detector
-
+dlib.FaceRecognitionUtils --> face_recognizer
 detector <|-- fire_detector
 detector <|-- face_recognizer
 
 Iterator <|.. LoadStreams
 Iterator <|.. LoadImages
 
+cv2.VideoCapture  <-- LoadStreams
+cv2.VideoCapture  <-- LoadImages
+cv2.VideoCapture <-[hidden]r- Iterator
+
 face_recognizer --> detect_tasks_manager
 LoadImages --> detect_tasks_manager
 LoadStreams --> detect_tasks_manager
-alarm --> detect_tasks_manager
-logger --> detect_tasks_manager
-logger -[hidden]-> alarm
+alarm -u-> detect_tasks_manager
+mail -up-> alarm
+logger -u-> detect_tasks_manager
+logger -[hidden]u-> alarm
 fire_detector --> detect_tasks_manager
-
-
+log -left-> logger
+alarm -[hidden]right-> logger
+cv2 -[hidden]left-> Iterator
 @enduml

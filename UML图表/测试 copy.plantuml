@@ -1,0 +1,25 @@
+class detect_tasks_manager {
+    - config: dict 
+    - faceRecognizer: face_recognizer
+    - fireDetector: fire_detector
+    - device: str
+    - fp16: bool
+    - on_alarm: bool
+    - patience: float
+    - save_dir: str
+    - source: str
+    - webcam: bool
+    - dataset: Union[LoadStreams, LoadImages]
+    - alarm: alarm
+    - logger: logger
+    + __init__()
+    + init_dataloader()
+    ' + preprocess()
+    + init_alarm()
+    + init_logger()
+    + is_within_time_range()
+    ' + init_logger()
+    + infer_frame(im: ndarray) : tuple
+    + gen_frame_stream(socketio: SocketIO = None)
+
+}

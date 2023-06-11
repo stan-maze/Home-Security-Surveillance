@@ -3,9 +3,27 @@ from flask import Flask, render_template, send_from_directory, url_for, Blueprin
 
 file_page = Blueprint('file_page', __name__)
 
+# log文件夹
+root_folder_path = os.path.abspath('../log')
 
-# 定义要浏览的根文件夹路径
-root_folder_path = os.path.abspath('../log')  # 替换为你的根文件夹路径
+def get_folder_structure(folder_path):
+    folder_structure = []
+    # 递归地访问目录，构建文件列表
+    for item in os.listdir(folder_path):
+        item_path = os.path.join(folder_path, item)
+        if os.path.isdir(item_path):
+            folder_structure.append({
+                'name': item,
+                'type': 'folder',
+                'path': os.path.normpath(os.path.relpath(item_path, root_folder_path))
+            })
+        else:
+            folder_structure.append({
+                'name': item,
+                'path': os.path.normpath(os.path.relpath(item_path, root_folder_path)),
+                'type': 'file'
+            })
+    return folder_structure
 
 
 @file_page.route('/log/')
@@ -16,7 +34,7 @@ def index():
     return render_template('file.html', folder_structure=folder_structure)
 
 
-@file_page.route('/log/download/<path:file_path>')
+@file_page.route('/log/download/<path:folder_path>')
 def download(file_path):
     # 构建文件的完整路径
     full_path = os.path.join(root_folder_path, file_path)
@@ -24,11 +42,11 @@ def download(file_path):
 
     # 检查文件是否存在
     if os.path.isfile(full_path):
-        # 提供文件下载
+        # 提供文件下载，参数依次为，目录名，文件名，下载开关(as_attachment=True说明文件会以附件形式下载)
         return send_from_directory(os.path.dirname(full_path), os.path.basename(full_path), as_attachment=True)
     else:
-        # 文件不存在，返回错误页面或提示信息
-        return render_template('error.html', message='File not found')
+        # 文件不存在，返回错误示信息
+        return 'File not found'
 
 
 @file_page.route('/log/preview/<path:file_path>')
@@ -50,8 +68,8 @@ def preview(file_path):
             with open(full_path, 'r') as file:
                 content = file.read()
             return render_template('preview.html', file_path=file_path, file_type='text', content=content)
-    # 文件不存在或不支持预览，返回错误页面或提示信息
-    return render_template('error.html', message='Preview not available')
+    # 返回错误信息
+    return 'Preview not available'
 
 
 @file_page.route('/log/browse/<path:folder_path>')
@@ -69,23 +87,6 @@ def browse(folder_path):
     return render_template('file.html', current_path=folder_path, folder_structure=folder_structure, parent_path=parent_path)
 
 
-def get_folder_structure(folder_path):
-    folder_structure = []
-    for item in os.listdir(folder_path):
-        item_path = os.path.join(folder_path, item)
-        if os.path.isdir(item_path):
-            folder_structure.append({
-                'name': item,
-                'type': 'folder',
-                'path': os.path.normpath(os.path.relpath(item_path, root_folder_path))
-            })
-        else:
-            folder_structure.append({
-                'name': item,
-                'path': os.path.normpath(os.path.relpath(item_path, root_folder_path)),
-                'type': 'file'
-            })
-    return folder_structure
 
 
 

@@ -24,21 +24,19 @@ class face_recognizer(Detector):
         # with open(yaml_PATH, 'r') as f:
         #     data = yaml.safe_load(f)
         for name, image_paths in data.items():
-            # name = face['name']
-            # image_paths = face['image_paths']
             
             for image_file in image_paths:
                 img= face_recognition.load_image_file(os.path.join(img_PATH, image_file))
                 # 返回一系列人脸嵌入列表, 保证一张脸, 所以直接取0
                 self.known_face_encodings[name] = face_recognition.face_encodings(img)[0]
                 
-                # TODO
-                # 多张图片
-                break
             
     def infer(self, im):
-
+        np.save('rgb_frame.npy', im)
+        print("rgb_frameFFFF")
         rgb_frame = np.ascontiguousarray(np.squeeze(im).transpose(1, 2, 0))
+        
+        
         face_locations = face_recognition.face_locations(rgb_frame)
         unknown_face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
         
@@ -47,6 +45,7 @@ class face_recognizer(Detector):
         # with dt[1]:
         for (top, right, bottom, left), unknown_face_encoding in zip(face_locations, unknown_face_encodings):
             face_distances = face_recognition.face_distance(list(self.known_face_encodings.values()), unknown_face_encoding)
+            print(list(zip(self.known_face_encodings.keys(), face_distances)))
             closest_face_index = np.argmin(face_distances)
             name = "Unknown"
             if face_distances[closest_face_index] < 0.6:

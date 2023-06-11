@@ -152,8 +152,8 @@ class LoadWebcam:  # for inference
         return 0
 
 
-class LoadStreams:  # multiple IP or RTSP cameras
-    def __init__(self, sources='streams.txt', img_size=640, stride=32):
+class LoadStreams:
+    def __init__(self, sources='0', img_size=640, stride=32):
         self.mode = 'stream'
         self.img_size = img_size
         self.stride = stride
@@ -200,9 +200,6 @@ class LoadStreams:  # multiple IP or RTSP cameras
                 n = 0
             time.sleep(0.01)  # wait time
 
-    def __iter__(self):
-        self.count = -1
-        return self
 
     def __next__(self):
         self.count += 1
@@ -223,5 +220,9 @@ class LoadStreams:  # multiple IP or RTSP cameras
 
         return self.sources, img, img0, None
 
+    def __iter__(self):
+        self.count = -1
+        return self
+    
     def __len__(self):
         return 0  # 1E12 frames = 32 streams at 30 FPS for 30 years

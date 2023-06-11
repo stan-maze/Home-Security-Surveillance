@@ -93,38 +93,30 @@ class fire_detector(Detector):
 
     @smart_inference_mode()
     def load_model(self):
-        # Load model
         device = select_device(self.device)
         model = DetectMultiBackend(self.weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
         stride, names, pt = model.stride, model.names, model.pt
         imgsz = check_img_size(self.imgsz, s=stride)  # check image size
-
-        # 不需要bs
+        # 不需要batchsize
         model.warmup(imgsz=(1 if pt or model.triton else 1, 3, *imgsz))  # warmup
-        
         self.model = model
         self.names = names
         self.imgsz = imgsz
         self.stride = stride
         self.pt = pt
+        # 使用的数据类型
         self.fp16 = model.fp16
         
 
     def infer(self, im):
-        # Inference
         # yolov5模型对每帧的推理， 但是是原始向量模式，要经过non_max_suppression才可理解
-        # with dt[1]:
-
         pred = self.model(im, augment=self.augment, visualize=self.visualize)
-        # NMS
-        # 这里之后可以尝试插入人脸识别, 这里才是真正的推断
-        # with dt[2]:
         # NMS的作用是通过抑制置信度较低或与其他框重叠较多的候选框，从而选择出最佳的检测结果。
         # 它的基本原理是按照置信度排序候选框，然后逐个考虑每个候选框，将与其重叠度（IOU）超过一定阈值的其他候选框去除，只保留置信度最高的候选框。
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms, max_det=self.max_det)
-            
-        # 原始的pred就这样了， 现在对pred进行转换， [xywh, conf, objs]
-        # 换一种方式， 单独提出objs列表
+        
+        # 原始的pred格式不便， 现在对pred进行转换， [xywh, conf, objs]
+        # 再换一种方式， 单独提出objs列表
         objs = []
         for predi in pred:
             objs.append([])

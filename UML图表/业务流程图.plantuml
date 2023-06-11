@@ -30,7 +30,7 @@ package "主程序" {
             :读入配置参数, 设定报警邮件地址;
         }
     }
-    rectangle "初始化数据流模块, 封装dataset迭代器"{
+    rectangle #lightGreen "初始化数据流模块, 封装dataset迭代器"{
         :传出dataset;
     }
     while (从dataset中取得帧) is (true)
@@ -75,11 +75,11 @@ package "主程序" {
     endwhile
     stop
 }
-package #LightYellow "dataset迭代器" {
+package #LightYellow "dataset迭代器工作流" {
     start
-    :opencv载入摄像头(视频文件)数据流cam;
+    :使用cv2库载入摄像头(视频文件)数据流cam;
     while (cam.read取出帧) is (true)
-        :对帧进行resize, BGR转化RGB, 数值连续化等前处理操作;
+        :对帧进行缩放, BGR转化RGB, 内存连续化等前处理操作;
         :传出帧数据;
     endwhile
     stop

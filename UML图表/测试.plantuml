@@ -1,20 +1,15 @@
 @startuml
 
-left to right direction
-'top to bottom direction
+rectangle setup设置logger {
+start
+:传入参数maxMB和backupCount;
+:按照当前时间创建日志目录;
+:按照maxMB和backupCount的轮转条件创建RotatingFileHandler;
+:设置日志记录格式和日志等级;
+:使用RotatingFileHandler管理logger;
+:得到logger对象和current_log_dir当前日志目录;
+end
 
-rectangle Arrows
-rectangle A
-rectangle B
-rectangle C
-rectangle D
-rectangle E
-rectangle F
-
-Arrows --> A 
-Arrows --> B
-Arrows --> C
-Arrows --> D
-Arrows --[hidden]> E
+}
 
 @enduml
