@@ -1,13 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Config</title>
+    <title>配置</title>
     
+<!DOCTYPE html>
+<head>
+    <title>Config Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
 
+        a {
+            display: block;
+            margin-bottom: 20px;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #aaa;
+        }
+
+        .tab {
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .tab button {
+            background-color: #ddd;
+            border: none;
+            color: #333;
+            padding: 10px 20px;
+            margin-right: 10px;
+            float: left;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .tab button:hover {
+            background-color: #aaa;
+            color: #fff;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 5px;
+        }
+
+        h2,h3,h3 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        img {
+            width: 120px;
+            border: 1px solid black;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        a.edit-link {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        a.edit-link:hover {
+            background-color: #555;
+        }
+
+     hr {
+         margin-top: 20px;
+         margin-bottom: 20px;
+         border: none;
+         border-top: 1px solid #ddd; }
+
+
+    input[type="text"], input[type="password"], textarea {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    input[type="submit"] {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        text-decoration: none;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #555;
+    }
+    input{
+        margin:5px;
+    }
+    .label1{
+        font-size: 18px;
+    }
+
+
+
+    ul.horizontal-list {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+ul.horizontal-list li {
+  margin-right: 10px; /* 调整此处的间距值 */
+}
+
+ul.horizontal-list img {
+  display: block;
+  {#width: 100px; /* 调整此处的图片宽度 */#}
+  height: auto;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+    </style>
 </head>
 <body>
-    <h2>Edit Config File</h2>
-    <a href="{{ url_for('config_page.index') }}">返回</a>
+
+    <h1>修改配置</h1>
+
     
         {% if index != 2 %}
         <form method="POST" action="" enctype="multipart/form-data">
@@ -26,15 +178,16 @@
         </form>
         
         {% else %}
-            <label>Existing Images:</label>
+            <label class="label1">现有人像:</label>
+
             <ul>
                 {% for key, value in config.items() %}
-                    <li><strong>{{ key }}:</strong> 
+                    <li><strong style="margin: 5px;">{{ key }}:</strong>
                         <ul>
                             {% for item in value %}
                             <li class="image-container">
                                 <img src="{{ url_for('config_page.get_facerec_image', filename=item) }}" alt="Image" height=120>
-                                <a href="{{ url_for('config_page.delete_image', filename=item) }}">Delete</a>
+                                <a href="{{ url_for('config_page.delete_image', filename=item) }}">删除该图片</a>
                             </li>
                             {% endfor %}
                         </ul>
@@ -52,7 +205,7 @@
                 <br>
                 {% endfor %}
             </ul>
-            <label>add face</label>
+            <label class="label1">添加新人物</label>
             <form method="POST" action="{{ url_for('config_page.upload_image') }}" enctype="multipart/form-data">
                 <label>上传新用户的头像{{ key }}:</label>
                 <input type="file" name="image" onchange="previewImage(event, 'preview')">
@@ -65,6 +218,7 @@
 
         {% endif %}
         <br>
+        <a href="{{ url_for('config_page.index') }}">返回</a>
 
     <script>
         function previewImage(event, previewId) {

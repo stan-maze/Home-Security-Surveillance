@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Video Streaming</title>
+  <title>视频流</title>
   <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
   <script type="text/javascript">
     var socket = io();
@@ -14,7 +14,66 @@
   </script>
 </head>
 <body>
-  <h1>Video Streaming</h1>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f2f2f2;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    p {
+        color: #777;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    li a {
+        display: block;
+        padding: 10px;
+        background-color: #ddd;
+        color: #333;
+        text-decoration: none;
+        border-radius: 5px;
+        width:300px;
+    }
+
+    li a:hover {
+        background-color: #aaa;
+        color: #fff;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #555;
+    }
+</style>
+  <h1>视频流</h1>
   <img id="frame" src="" alt="Frame" />
 </body>
 </html>
