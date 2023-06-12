@@ -10,11 +10,15 @@ dirpath = os.path.dirname(dirpath)
 # 配置文件路径
 config_files = [
     # 控制器参数
-    '../config.json',
+    os.path.join(dirpath, 'config.json'),
     # 火焰识别参数
-    '../firedet/api/fire_detector/config.json'
+    os.path.join(dirpath, 'firedet', 'api', 'fire_detector', 'config.json'),
     # 人脸识别参数, 这个要多花点功夫, 显示图片
-    '../facerec/api/data/faces.json',
+    os.path.join(dirpath, 'facerec', 'api', 'data', 'faces.json')
+    
+    # '../config.json',
+    # '../firedet/api/fire_detector/config.json'
+    # '../facerec/api/data/faces.json',
 ]
 
 # 读取配置文件
@@ -48,6 +52,7 @@ def index():
     # 读取配置文件内容
     configs = []
     for i, file in enumerate(config_files):
+        print(file)
         config = read_config(file)
         configs.append(config)
 

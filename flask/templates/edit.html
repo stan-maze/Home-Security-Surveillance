@@ -187,7 +187,8 @@ ul.horizontal-list img {
                             {% for item in value %}
                             <li class="image-container">
                                 <img src="{{ url_for('config_page.get_facerec_image', filename=item) }}" alt="Image" height=120>
-                                <a href="{{ url_for('config_page.delete_image', filename=item) }}">删除该图片</a>
+                                <br>
+                                <button onclick="deleteImage('{{ item }}')">删除该图片</button>
                             </li>
                             {% endfor %}
                         </ul>
@@ -235,6 +236,24 @@ ul.horizontal-list img {
 
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+        function deleteImage(filename) {
+            fetch('/config/delete-image/' + filename, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 删除成功后进行页面刷新或其他操作
+                    location.reload();
+                } else {
+                    // 处理删除失败的情况
+                    console.log('Failed to delete image');
+                }
+            })
+            .catch(error => {
+                // 处理网络错误等异常情况
+                console.log('Error:', error);
+            });
         }
     </script>
 </body>

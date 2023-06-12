@@ -32,8 +32,6 @@ class face_recognizer(Detector):
                 
             
     def infer(self, im):
-        np.save('rgb_frame.npy', im)
-        print("rgb_frameFFFF")
         rgb_frame = np.ascontiguousarray(np.squeeze(im).transpose(1, 2, 0))
         
         
