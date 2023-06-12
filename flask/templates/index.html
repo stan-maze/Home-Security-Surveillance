@@ -3,16 +3,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Navigation</title>
+    <title>导航</title>
 </head>
 <body>
-    <h1>Navigation Page</h1>
-    <p>修改配置后需要重启系统才能生效</p>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f2f2f2;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    p {
+        color: #777;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    li a {
+        display: block;
+        padding: 10px;
+        background-color: #ddd;
+        color: #333;
+        text-decoration: none;
+        border-radius: 5px;
+        width:300px;
+    }
+
+    li a:hover {
+        background-color: #aaa;
+        color: #fff;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #555;
+    }
+</style>
+    <h1>家庭安全监控</h1>
     <ul>
-        <li><a href="/config">Config Page</a></li>
-        <li><a href="/log">File Page</a></li>
-        <li><a href="/cam">Camera Page</a></li>
+        <li><a href="/config">配置文件</a></li>
+        <li><a href="/log">日志</a></li>
+        <li><a href="/cam">识别结果</a></li>
     </ul>
+    <p>修改配置后需要重启系统才能生效</p>
     <form action="/restart" method="post">
         <button type="submit" onclick="restart()">重启</button>
     </form>
