@@ -40,5 +40,7 @@ def restart():
 if __name__ == '__main__':
     # print(os.getpid())
     # app.run()
+    # 使用后台进程在服务启动时直接开始运行gen_frame_stream过程并将绘制帧传回socketio
+    # 供前端展示, 这样后端不会被前端阻塞
     socketio.start_background_task(gen_frame_stream, socketio=socketio)
     socketio.run(app)

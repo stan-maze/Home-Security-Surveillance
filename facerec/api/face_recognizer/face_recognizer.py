@@ -46,7 +46,7 @@ class face_recognizer(Detector):
             print(list(zip(self.known_face_encodings.keys(), face_distances)))
             closest_face_index = np.argmin(face_distances)
             name = "Unknown"
-            if face_distances[closest_face_index] < 0.6:
+            if face_distances[closest_face_index] < 0.4:
                 name = list(self.known_face_encodings.keys())[closest_face_index]
                 # dinstance, 也是confidence
                 confidence = 1- face_distances[closest_face_index]

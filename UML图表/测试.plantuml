@@ -1,15 +1,27 @@
-@startuml
-
-rectangle setup设置logger {
 start
-:传入参数maxMB和backupCount;
-:按照当前时间创建日志目录;
-:按照maxMB和backupCount的轮转条件创建RotatingFileHandler;
-:设置日志记录格式和日志等级;
-:使用RotatingFileHandler管理logger;
-:得到logger对象和current_log_dir当前日志目录;
-end
-
+if (检测到异常) then (是)
+    :在图像上绘制边界框和标签;
+    :更新检测队列缓冲;
+else (否)
+    stop
+endif
+partition #lightGreen "警告和日志模块" {
+    :检测结果写入文本log;
+    if (检测到异常(火焰/陌生人)) then (是)
+        if (报警开关打开触发AND(尚未发送警报OR距离上次报警过去一段时间)) then (是)
+            :将当前帧保存为图像;
+            :发送带有图像和相关信息的警报电子邮件;
+            :重置报警计时器;
+        endif
+        if (未在录制中) then (是)
+            :开始录制并初始化视频编写器;
+        endif
+        if (正在录制中) then (是)
+            :继续将帧写入视频;
+            if (达到最大长度或异常消失) then (是)
+                :停止录制并释放视频编写器;
+            endif
+        endif
+    endif
 }
-
-@enduml
+stop

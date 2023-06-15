@@ -34,7 +34,7 @@ def index():
     return render_template('file.html', folder_structure=folder_structure)
 
 
-@file_page.route('/log/download/<path:folder_path>')
+@file_page.route('/log/download/<path:file_path>')
 def download(file_path):
     # 构建文件的完整路径
     full_path = os.path.join(root_folder_path, file_path)
