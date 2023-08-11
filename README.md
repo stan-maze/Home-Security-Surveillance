@@ -10,7 +10,7 @@
 
 
 
-## 文件还比较乱, 具体的两个检测器在
+## 具体的两个检测器在
 ```
 facerec\api\face_recognizer
 firedet\api\fire_detector
@@ -68,10 +68,10 @@ python3 app.py
 
 
 ## TODO
-- [ ] face_recognizer:
-    - [ ] 调用的api很简单, 可以自己复写
-    - [ ] 选择的dlib模型选择可以进一步考察
-    - [ ] 多张人脸能否提高识别能力
+- [x] face_recognizer:
+    - [x] 调用的api很简单, 可以自己复写
+    - [x] 选择的dlib模型选择可以进一步考察
+    - [x] 多张人脸能否提高识别能力
 <!-- - [ ] fire_detector由yolov5项目改造而来, 清理非必要的文件 -->
 - [x] 配置文件的管理:
     - [x] 是否分离face_recognizer和fire_detector
